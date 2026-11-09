@@ -1,0 +1,41 @@
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router'
+import { AppLayout } from './components/AppLayout'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AuthPage } from './pages/AuthPage'
+import { FilesPage } from './pages/FilesPage'
+import { ForbiddenPage } from './pages/ForbiddenPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { StatusPage } from './pages/StatusPage'
+
+const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <AuthPage mode="login" />,
+  },
+  {
+    path: '/register',
+    element: <AuthPage mode="register" />,
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <Navigate to="/files" replace /> },
+          { path: 'files', element: <FilesPage /> },
+          { path: 'estado', element: <StatusPage /> },
+          { path: 'sin-permiso', element: <ForbiddenPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />,
+  },
+])
+
+export default function App() {
+  return <RouterProvider router={router} />
+}
