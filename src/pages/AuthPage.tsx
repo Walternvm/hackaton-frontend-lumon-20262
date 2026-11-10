@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { ApiError } from '../api/client'
+import { takeSessionMessage } from '../api/session'
 import { useAuth } from '../auth/useAuth'
 
 interface LocationState {
@@ -13,6 +14,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const navigate = useNavigate()
   const location = useLocation()
   const state = location.state as LocationState | null
+  const [sessionMessage] = useState(() => takeSessionMessage())
   const [teamName, setTeamName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -80,9 +82,9 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               : 'Lumon asignara un TEAM_CODE al finalizar.'}
           </p>
 
-          {state?.message && (
+          {(state?.message || sessionMessage) && (
             <p className="mt-5 border border-[#8c2f23] bg-[#fff4ee] p-3 text-sm text-[#8c2f23]" role="alert">
-              {state.message}
+              {state?.message ?? sessionMessage}
             </p>
           )}
 

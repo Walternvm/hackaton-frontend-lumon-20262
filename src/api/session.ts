@@ -1,6 +1,8 @@
 import type { TokenPair } from '../types/api'
 
 const REFRESH_KEY = 'lumon.refresh'
+const SESSION_MESSAGE_KEY = 'lumon.session-message'
+const SESSION_EVENT = 'lumon-session-change'
 const channel = new BroadcastChannel('lumon-session')
 
 let accessToken: string | null = null
@@ -23,13 +25,28 @@ export function setTokens(tokens: TokenPair, broadcast = true) {
   }
 }
 
-export function clearTokens(broadcast = true) {
+export function clearTokens(
+  broadcast = true,
+  message?: string,
+) {
   accessToken = null
   localStorage.removeItem(REFRESH_KEY)
 
-  if (broadcast) {
-    channel.postMessage({ type: 'logout' })
+  if (message) {
+    sessionStorage.setItem(SESSION_MESSAGE_KEY, message)
   }
+
+  window.dispatchEvent(new Event(SESSION_EVENT))
+
+  if (broadcast) {
+    channel.postMessage({ type: 'logout', message })
+  }
+}
+
+export function takeSessionMessage() {
+  const message = sessionStorage.getItem(SESSION_MESSAGE_KEY)
+  sessionStorage.removeItem(SESSION_MESSAGE_KEY)
+  return message
 }
 
 export function setRefreshPromise(promise: Promise<string> | null) {
@@ -47,6 +64,7 @@ export function subscribeToSession(
   const listener = (event: MessageEvent<{
     type: 'tokens' | 'logout'
     tokens?: TokenPair
+    message?: string
   }>) => {
     if (event.data.type === 'tokens' && event.data.tokens) {
       setTokens(event.data.tokens, false)
@@ -54,12 +72,18 @@ export function subscribeToSession(
     }
 
     if (event.data.type === 'logout') {
-      clearTokens(false)
+      clearTokens(false, event.data.message)
       onLogout()
     }
   }
 
-  channel.addEventListener('message', listener)
+  const localListener = () => onLogout()
 
-  return () => channel.removeEventListener('message', listener)
+  channel.addEventListener('message', listener)
+  window.addEventListener(SESSION_EVENT, localListener)
+
+  return () => {
+    channel.removeEventListener('message', listener)
+    window.removeEventListener(SESSION_EVENT, localListener)
+  }
 }
