@@ -5,13 +5,14 @@ import { AuthProvider } from './auth/AuthProvider'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { HealthGate } from './components/HealthGate'
 import './styles.css'
+import { EventProvider } from './realtime/EventProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <HealthGate>
         <AuthProvider>
-          <App />
+          <EventProvider><App /></EventProvider>
         </AuthProvider>
       </HealthGate>
     </ErrorBoundary>

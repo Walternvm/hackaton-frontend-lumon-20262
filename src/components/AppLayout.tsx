@@ -1,8 +1,10 @@
 import { NavLink, Outlet } from 'react-router'
 import { useAuth } from '../auth/useAuth'
+import { useEvents } from '../realtime/EventContext'
 
 export function AppLayout() {
   const { user, logout, hasPermission } = useAuth()
+  const { status } = useEvents()
 
   return (
     <div className="min-h-screen bg-[#eef1df] text-[#082b24]">
@@ -26,6 +28,7 @@ export function AppLayout() {
               </NavLink>
             )}
             <span className="hidden text-sm text-[#527065] sm:inline">{user?.displayName}</span>
+            <span className={`h-3 w-3 rounded-full ${status === 'connected' ? 'bg-[#176b52]' : status === 'connecting' ? 'bg-[#d89b23]' : 'bg-[#8c2f23]'}`} title={`Eventos: ${status}`} aria-label={`Estado de eventos: ${status}`} />
             <button
               type="button"
               onClick={() => void logout()}
