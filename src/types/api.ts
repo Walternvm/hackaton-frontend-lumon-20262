@@ -126,3 +126,63 @@ export interface RefineResult {
     status: 'ACTIVE' | 'COMPLETE'
   }
 }
+
+export interface CheckResult {
+  name: string
+  passed: boolean
+  detail: string
+}
+
+export interface RosterMember {
+  name: string
+  code: string
+}
+
+export interface Roster {
+  members: RosterMember[]
+  complete: boolean
+  locked: boolean
+}
+
+export interface Clearance {
+  granted: boolean
+  grantedAt: string | null
+  checks: CheckResult[]
+  checkedAt: string | null
+  workspace: {
+    kind: 'DEV' | 'EVAL'
+    chaosLevel: 0 | 1 | 2
+  }
+  roster: Roster
+  round: {
+    approved: boolean
+    approvedAt: string | null
+    approvedRound: number | null
+    nextRoundAt: string | null
+    drawnMember: RosterMember | null
+  }
+}
+
+export interface ClearanceCheckResult {
+  granted: boolean
+  grantedAt: string | null
+  checks: CheckResult[]
+}
+
+export interface IntegrationStatus {
+  deploy: {
+    origin: string | null
+    verifiedAt: string | null
+    lastBuildSeen: string | null
+    lastBuildSeenAt: string | null
+  }
+  storage: {
+    provider: 'SUPABASE' | 'CLOUDINARY' | null
+    verifiedAt: string | null
+    checks: CheckResult[]
+  }
+  clearance: {
+    granted: boolean
+    grantedAt: string | null
+  }
+}
