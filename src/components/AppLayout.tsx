@@ -18,6 +18,8 @@ export function AppLayout() {
             <NavLink to="/estado" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">
               Estado
             </NavLink>
+            {hasPermission('refiners:read') && <NavLink to="/refiners" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">Refinadores</NavLink>}
+            {hasPermission('incidents:read') && <NavLink to="/incidents" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">Incidencias</NavLink>}
             {hasPermission('team:manage') && (
               <NavLink to="/equipo" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">
                 Equipo
