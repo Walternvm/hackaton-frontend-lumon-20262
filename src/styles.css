@@ -35,3 +35,22 @@ input {
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes tremor {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(1px, 1px); }
+}
+
+.scary-cell {
+  animation: tremor 0.18s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scary-cell {
+    animation: none;
+    outline: 2px dashed #8c2f23;
+    outline-offset: -3px;
+  }
+}

@@ -7,6 +7,7 @@ import { ForbiddenPage } from './pages/ForbiddenPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { StatusPage } from './pages/StatusPage'
 import { TeamPage } from './pages/TeamPage'
+import { RefinePage } from './pages/RefinePage'
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/files" replace /> },
           { path: 'files', element: <FilesPage /> },
+          { path: 'files/:id/refine', element: <RefinePage /> },
           { path: 'estado', element: <StatusPage /> },
           {
             element: <ProtectedRoute permission="team:manage" />,
