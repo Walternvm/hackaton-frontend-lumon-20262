@@ -16,11 +16,13 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 export class ApiError extends Error {
   status: number
   body: ApiErrorBody
+  headers: Headers
 
-  constructor(status: number, body: ApiErrorBody) {
+  constructor(status: number, body: ApiErrorBody, headers = new Headers()) {
     super(body.message)
     this.status = status
     this.body = body
+    this.headers = headers
   }
 }
 
@@ -33,9 +35,13 @@ async function parseError(response: Response) {
   }
 
   try {
-    return new ApiError(response.status, await response.json() as ApiErrorBody)
+    return new ApiError(
+      response.status,
+      await response.json() as ApiErrorBody,
+      response.headers,
+    )
   } catch {
-    return new ApiError(response.status, fallback)
+    return new ApiError(response.status, fallback, response.headers)
   }
 }
 

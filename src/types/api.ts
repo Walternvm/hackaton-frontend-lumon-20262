@@ -52,3 +52,77 @@ export interface Health {
   service: string
   time: string
 }
+
+export type Bin = 'WO' | 'FC' | 'DR' | 'MA'
+
+export interface Progress {
+  WO: number
+  FC: number
+  DR: number
+  MA: number
+  overall: number
+}
+
+export interface DataFile {
+  id: number
+  name: string
+  rows: number
+  cols: number
+  tileSize: number
+  status: 'ACTIVE' | 'COMPLETE'
+  progress: Progress
+  refinedGroups: number
+  totalGroups: number
+  mistakes: number
+  updatedAt: string
+}
+
+export interface FilePage {
+  content: DataFile[]
+  totalElements: number
+  totalPages: number
+  page: number
+  size: 10 | 25 | 50
+}
+
+export interface Rules {
+  tremorThreshold: number
+  connectivity: 4 | 8
+  minGroupSize: number
+  maxGroupSize: number
+  binning: {
+    strategy: 'DIGIT_SUM_MOD' | 'MAX_DIGIT_MOD'
+    order: Bin[]
+  }
+}
+
+export interface Tile {
+  tileRow: number
+  tileCol: number
+  originRow: number
+  originCol: number
+  rows: number
+  cols: number
+  values: string
+  tremor: string
+  bins: string
+  version: number
+}
+
+export interface CellCoordinate {
+  r: number
+  c: number
+}
+
+export interface RefineResult {
+  refinementId: number
+  bin: Bin
+  size: number
+  file: {
+    progress: Progress
+    refinedGroups: number
+    totalGroups: number
+    mistakes: number
+    status: 'ACTIVE' | 'COMPLETE'
+  }
+}
