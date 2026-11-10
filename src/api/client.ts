@@ -46,11 +46,26 @@ async function refreshAccessToken() {
     return activePromise
   }
 
+  const initialRefreshToken = getRefreshToken()
   const lockPromise = navigator.locks.request('lumon-refresh', async () => {
-    const refreshToken = getRefreshToken()
+    let refreshToken = getRefreshToken()
 
     if (!refreshToken) {
       throw new Error('No hay una sesion para restaurar.')
+    }
+
+    if (refreshToken !== initialRefreshToken) {
+      const sharedToken = await waitForSharedAccessToken()
+
+      if (sharedToken) {
+        return sharedToken
+      }
+
+      refreshToken = getRefreshToken()
+
+      if (!refreshToken) {
+        throw new Error('No hay una sesion para restaurar.')
+      }
     }
 
     const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
@@ -63,8 +78,9 @@ async function refreshAccessToken() {
     })
 
     if (!response.ok) {
-      clearTokens()
-      throw await parseError(response)
+      const error = await parseError(response)
+      clearTokens(true, getSessionErrorMessage(error.body.error))
+      throw error
     }
 
     const tokens = await response.json() as TokenPair
@@ -80,6 +96,32 @@ async function refreshAccessToken() {
   } finally {
     setRefreshPromise(null)
   }
+}
+
+async function waitForSharedAccessToken() {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const token = getAccessToken()
+
+    if (token) {
+      return token
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, 30))
+  }
+
+  return null
+}
+
+function getSessionErrorMessage(error: string) {
+  if (error === 'REFRESH_REUSED') {
+    return 'La sesion fue revocada porque el refresh token ya habia sido utilizado.'
+  }
+
+  if (error === 'SESSION_REVOKED') {
+    return 'La sesion fue revocada. Inicia sesion nuevamente.'
+  }
+
+  return 'La sesion vencio. Inicia sesion nuevamente.'
 }
 
 interface RequestOptions extends RequestInit {
@@ -142,7 +184,7 @@ export async function apiRequest<T>(
     error.body.error === 'SESSION_REVOKED' ||
     error.body.error === 'REFRESH_REUSED'
   ) {
-    clearTokens()
+    clearTokens(true, getSessionErrorMessage(error.body.error))
   }
 
   throw error

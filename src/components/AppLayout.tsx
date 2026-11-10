@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 
 export function AppLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, hasPermission } = useAuth()
 
   return (
     <div className="min-h-screen bg-[#eef1df] text-[#082b24]">
@@ -18,6 +18,11 @@ export function AppLayout() {
             <NavLink to="/estado" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">
               Estado
             </NavLink>
+            {hasPermission('team:manage') && (
+              <NavLink to="/equipo" className="px-3 py-2 text-sm font-semibold hover:bg-[#dbe3d1]">
+                Equipo
+              </NavLink>
+            )}
             <span className="hidden text-sm text-[#527065] sm:inline">{user?.displayName}</span>
             <button
               type="button"
