@@ -17,6 +17,7 @@ import type {
   Rules,
   Tile,
 } from '../types/api'
+import { useFloor } from '../realtime/useFloor'
 
 const CELL_SIZE = 36
 const OVERSCAN = 4
@@ -53,6 +54,7 @@ export function RefinePage() {
     col: Number(searchParams.get('c')) || 0,
   })
   const { loadVisible, getCell, getCellSync, markRefined, reloadForCells } = useTileStore(fileId, file?.tileSize ?? 32)
+  const floor = useFloor(fileId)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -147,6 +149,7 @@ export function RefinePage() {
   const selectGroup = async (r: number, c: number) => {
     if (!file || !rules) return
     setSelectionMessage('Buscando grupo completo...')
+    floor.moveCursor(r, c)
 
     try {
       const start = await getCell(r, c)
@@ -187,6 +190,8 @@ export function RefinePage() {
     setError('')
 
     try {
+      const allowed = await floor.claim(selected[0].r, selected[0].c)
+      if (!allowed) { setError(floor.message || 'Otro refinador tiene reservado este grupo.'); return }
       const result = await refineWithRetry(file.id, bin, selected, idempotencyKey)
       markRefined(selected, bin)
       setFile({
@@ -207,6 +212,7 @@ export function RefinePage() {
         reloadForCells(selected)
       }
     } finally {
+      floor.release()
       setRefining(false)
     }
   }
@@ -311,6 +317,7 @@ export function RefinePage() {
         </div>
 
         <aside className="border-2 border-[#0b4b3f] bg-[#f8f7eb] p-5">
+          <p className="mb-4 border-b border-[#6d877c] pb-3 text-xs"><strong>Piso:</strong> {floor.status} · {floor.members.length} presentes</p>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#527065]">Grupo seleccionado</p>
           <p className="mt-3 min-h-12 font-semibold">{selectionMessage || 'Selecciona un numero que de miedo.'}</p>
           {expectedBin && <p className="mt-3 text-sm">Destino calculado: <strong>{binNames[expectedBin]}</strong></p>}
