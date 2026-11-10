@@ -186,3 +186,70 @@ export interface IntegrationStatus {
     grantedAt: string | null
   }
 }
+
+export interface Department {
+  id: number
+  code: string
+  name: string
+}
+
+export interface Refiner {
+  id: number
+  fullName: string
+  department: Department
+  title: string
+  extension: string
+  bio: string
+  profileUrl: string | null
+  badge: { url: string; width: number; height: number } | null
+  version: number
+  updatedAt: string
+}
+
+export interface RefinerPage {
+  content: Refiner[]
+  totalElements: number
+  totalPages: number
+  page: number
+  size: 10 | 25 | 50
+}
+
+export interface MediaTicket {
+  ticketId: string
+  expiresAt: string
+  provider: 'SUPABASE' | 'CLOUDINARY'
+  objectPath?: string
+  bucket?: string
+  uploadPublicId?: string
+  expectedPublicId?: string
+}
+
+export interface Media {
+  mediaId: number
+  url: string
+  width: number
+  height: number
+  purpose: 'BADGE' | 'INCIDENT'
+}
+
+export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+
+export interface Incident {
+  id: number
+  title: string
+  description: string
+  severity: Severity
+  fileId: number | null
+  file: { id: number; name: string } | null
+  photos: Array<{ mediaId: number; url: string; width: number; height: number }>
+  createdBy: { id: number; displayName: string }
+  createdAt: string
+}
+
+export interface IncidentPage {
+  content: Incident[]
+  totalElements: number
+  totalPages: number
+  page: number
+  size: 10 | 25 | 50
+}
